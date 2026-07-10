@@ -1,9 +1,0 @@
-delay - 0.5 - this is a multiplier, smaller is faster
-InsertionSort - 128, Random - this is a comment
-SelectionSort - 128, Random ----------- this is a comment too
-QuickSort - 1024, Random
-MergeSort - 1024, Random
-TriBufferSort - 1024, Random
-
-- this is also a comment
--- and this is a comment too

@@ -1,7 +1,0 @@
-delay - 0.5
-TriBufferSort - 1024, Random
-TriBufferSort - 1024, Sorted
-TriBufferSort - 1024, Reversed
-TriBufferSort - 1024, FinalMerge
-TriBufferSort - 1024, HalfRotated
-TriBufferSort - 1024, DeckCut
