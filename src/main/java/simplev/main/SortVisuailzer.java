@@ -53,7 +53,7 @@ public class SortVisuailzer {
             try {
                 for (String str : strs) {
                     String[] p = str.split("-");
-                    if (p.length <= 1) continue;
+                    if (p.length == 0) continue;
                     switch (p[0].trim()) {
                         case "delay":
                             linkedHigh.delayMult = Double.parseDouble(p[1].trim());
