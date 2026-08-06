@@ -171,7 +171,7 @@ public class WikiSort extends Sort {
             found = 1;
             while (last > 0) {
                 int pos = binSearch(array, 0, last, highlight.read(array, last-1));
-                highlight.rotate(array, pos+1, last, last+found);
+                if (pos+1 != last) highlight.rotate(array, pos+1, last, last+found);
                 last = pos;
                 found++;
             }
