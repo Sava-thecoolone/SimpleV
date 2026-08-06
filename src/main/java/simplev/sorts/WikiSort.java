@@ -49,8 +49,8 @@ public class WikiSort extends Sort {
             int pos = binSearch(array, mid, r, highlight.read(array, l));
             l = highlight.rotate(array, l, mid, pos);
             if (mid >= r) break;
-            l = binSearchLast(array, l, mid, highlight.read(array, l));
             mid = pos;
+            while (l < mid && highlight.read(array, l) <= highlight.read(array, mid)) l = binSearchLast(array, l+1, mid, highlight.read(array, l));
             if (l >= mid) break;
         }
     }
@@ -137,7 +137,7 @@ public class WikiSort extends Sort {
 
     @Override
     public void runSort(int[] array, int len) throws RuntimeException {
-        int minrun = (int)Math.ceil(binlog(len))-4;
+        int minrun = (int)Math.ceil(binlog(len))-5;
         for (int j = 0; j < Math.pow(2, minrun); j++) {
             int start = ((int)(j*(len/Math.pow(2, minrun))));
             int end = ((int)((j+1)*(len/Math.pow(2, minrun))));
