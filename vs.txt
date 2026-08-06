@@ -1,0 +1,16 @@
+-- run with "run vs.txt QuickSort MergeSort"zen
+zen
+benchmark
+$0 - 50000, Random
+$0 - 50000, Sorted
+$0 - 50000, Reversed
+$0 - 50000, FinalMerge
+$0 - 50000, HalfRotated
+$0 - 50000, FewUnique, Random -- chained shuffles
+print - \-\-\- VS. \-\-\-
+$1 - 50000, Random
+$1 - 50000, Sorted
+$1 - 50000, Reversed
+$1 - 50000, FinalMerge
+$1 - 50000, HalfRotated
+$1 - 50000, FewUnique, Random

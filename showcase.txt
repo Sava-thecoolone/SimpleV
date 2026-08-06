@@ -1,0 +1,7 @@
+delay - 0.1
+$0 - 2048, Random -- $n is replaced with the nth argument after the suite name, like: "run showcase.txt WikiSort"
+$0 - 2048, Sorted
+$0 - 2048, Reversed
+$0 - 2048, FinalMerge
+$0 - 2048, HalfRotated
+$0 - 2048, StabilityBuckets, Random - Stability Check -- does a stability check
