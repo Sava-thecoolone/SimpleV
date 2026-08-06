@@ -20,12 +20,12 @@ public class LogFormatter extends Formatter {
         else if (lev == Level.INFO) out += WHITE;
         else out += GREY;
         out += "["+record.getLoggerName()+" at "+record.getInstant()+"] "+lev.getName()+": "+formatMessage(record);
-        String prevStr = "";
+        String prevMethod = "";
         int prevCount = 0;
         if (record.getThrown() != null) {
             out += "\n"+record.getThrown().toString();
             for (StackTraceElement trace : record.getThrown().getStackTrace()) {
-                if (prevStr.equals(trace.toString())) {
+                if (prevMethod.equals(trace.getMethodName())) {
                     prevCount++;
                     if (prevCount == 3) {
                         out += "\n    ...";
@@ -38,7 +38,7 @@ public class LogFormatter extends Formatter {
                     }
                     out += "\n    at "+trace.toString();
                     prevCount = 0;
-                    prevStr = trace.toString();
+                    prevMethod = trace.getMethodName();
                 }
             }
             if (prevCount >= 3) {

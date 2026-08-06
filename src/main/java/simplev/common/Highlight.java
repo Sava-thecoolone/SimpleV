@@ -11,6 +11,8 @@ public class Highlight {
     public String title = "<no title>";
     public AtomicLong reads;
     public AtomicLong writes;
+    public boolean stabilityCheck = false;
+    public int[] stabilityTable = {};
     int unslept = 0;
 
     public int read(int[] array, int a) {
@@ -29,6 +31,11 @@ public class Highlight {
         int temp = read(array, a);
         write(array, a, read(array, b));
         write(array, b, temp);
+        if (stabilityCheck) {
+            temp = read(stabilityTable, a);
+            write(stabilityTable, a, read(stabilityTable, b));
+            write(stabilityTable, b, temp);
+        }
     }
 
     public void reverse(int[] array, int l, int r) {
@@ -37,10 +44,125 @@ public class Highlight {
         }
     }
 
-    public void rotate(int[] array, int l, int mid, int r) {
-        reverse(array, l, mid);
-        reverse(array, mid, r);
-        reverse(array, l, r);
+    public int rotate(int[] array, int l, int mid, int r) {
+        int a = l;
+        int b = mid;
+        int c = mid;
+        int d = r;
+        if (mid-l > r-mid) {
+            int loop = (r-mid)/2;
+            while (loop-- > 0) {
+                b--; d--;
+                int temp = read(array, b);
+                write(array, b, read(array, a));
+                write(array, a, read(array, c));
+                write(array, c, read(array, d));
+                write(array, d, temp);
+                if (stabilityCheck) {
+                    temp = read(stabilityTable, b);
+                    write(stabilityTable, b, read(stabilityTable, a));
+                    write(stabilityTable, a, read(stabilityTable, c));
+                    write(stabilityTable, c, read(stabilityTable, d));
+                    write(stabilityTable, d, temp);
+                }
+                a++; c++;
+            }
+            loop = (b-a)/2;
+            while (loop-- > 0) {
+                b--; d--;
+                int temp = read(array, b);
+                write(array, b, read(array, a));
+                write(array, a, read(array, d));
+                write(array, d, temp);
+                if (stabilityCheck) {
+                    temp = read(stabilityTable, b);
+                    write(stabilityTable, b, read(stabilityTable, a));
+                    write(stabilityTable, a, read(stabilityTable, d));
+                    write(stabilityTable, d, temp);
+                }
+                a++;
+            }
+            loop = (d-a)/2;
+            while (loop-- > 0) {
+                d--;
+                int temp = read(array, a);
+                write(array, a, read(array, d));
+                write(array, d, temp);
+                if (stabilityCheck) {
+                    temp = read(stabilityTable, a);
+                    write(stabilityTable, a, read(stabilityTable, d));
+                    write(stabilityTable, d, temp);
+                }
+                a++;
+            }
+        } else if (mid-l < r-mid) {
+            int loop = (mid-l)/2;
+            while (loop-- > 0) {
+                b--; d--;
+                int temp = read(array, b);
+                write(array, b, read(array, a));
+                write(array, a, read(array, c));
+                write(array, c, read(array, d));
+                write(array, d, temp);
+                if (stabilityCheck) {
+                    temp = read(stabilityTable, b);
+                    write(stabilityTable, b, read(stabilityTable, a));
+                    write(stabilityTable, a, read(stabilityTable, c));
+                    write(stabilityTable, c, read(stabilityTable, d));
+                    write(stabilityTable, d, temp);
+                }
+                a++; c++;
+            }
+            loop = (d-c)/2;
+            while (loop-- > 0) {
+                d--;
+                int temp = read(array, c);
+                write(array, c, read(array, d));
+                write(array, d, read(array, a));
+                write(array, a, temp);
+                if (stabilityCheck) {
+                    temp = read(stabilityTable, c);
+                    write(stabilityTable, c, read(stabilityTable, d));
+                    write(stabilityTable, d, read(stabilityTable, a));
+                    write(stabilityTable, a, temp);
+                }
+                a++; c++;
+            }
+            loop = (d-a)/2;
+            while (loop-- > 0) {
+                d--;
+                int temp = read(array, a);
+                write(array, a, read(array, d));
+                write(array, d, temp);
+                if (stabilityCheck) {
+                    temp = read(stabilityTable, a);
+                    write(stabilityTable, a, read(stabilityTable, d));
+                    write(stabilityTable, d, temp);
+                }
+                a++;
+            }
+        } else {
+            int loop = mid-l;
+            while (loop-- > 0) {
+                int temp = read(array, a);
+                write(array, a, read(array, b));
+                write(array, b, temp);
+                if (stabilityCheck) {
+                    temp = read(stabilityTable, a);
+                    write(stabilityTable, a, read(stabilityTable, b));
+                    write(stabilityTable, b, temp);
+                }
+                a++; b++;
+            }
+        }
+        return l+r-mid;
+    }
+
+    public boolean isSorted(int[] array) {
+        for (int i = 1; i < array.length; i++) {
+            if (read(array, i-1) > read(array, i)) return false;
+        }
+        return true;
     }
 
     public void doHigh(int idx, int len) {
