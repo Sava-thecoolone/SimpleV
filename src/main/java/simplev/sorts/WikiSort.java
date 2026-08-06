@@ -114,7 +114,7 @@ public class WikiSort extends Sort {
                     highlight.swap(array, unmergedL+1, curTag++);
                 }
                 int pos = binSearch(array, unmergedR, i, highlight.read(array, i));
-                if (mergeBufferR-mergeBufferL == 0) rotateMerge(array, unmergedL, unmergedR, pos);
+                if (unmergedR-unmergedL > mergeBufferR-mergeBufferL) rotateMerge(array, unmergedL, unmergedR, pos);
                 else bufferMerge(array, unmergedL, unmergedR, pos, mergeBufferL);
                 highlight.rotate(array, pos, i, i+blockSize);
                 unmergedL = pos;
@@ -131,7 +131,8 @@ public class WikiSort extends Sort {
         if (unmergedR-unmergedL == blockSize) {
             highlight.swap(array, unmergedL+1, curTag++);
         }
-        bufferMerge(array, unmergedL, unmergedR, r, mergeBufferL);
+        if (unmergedR-unmergedL > mergeBufferR-mergeBufferL) rotateMerge(array, unmergedL, unmergedR, r);
+        else bufferMerge(array, unmergedL, unmergedR, r, mergeBufferL);
     }
 
     @Override
@@ -170,12 +171,11 @@ public class WikiSort extends Sort {
             found = 1;
             while (last > 0) {
                 int pos = binSearch(array, 0, last, highlight.read(array, last-1));
-                highlight.rotate(array, pos, last, last+found);
+                highlight.rotate(array, pos+1, last, last+found);
                 last = pos;
                 found++;
             }
             int tagBuff = Math.min(found, bufferSize);
-            if (highlight.read(array, 0) > highlight.read(array, found)) highlight.reverse(array, 0, found);
             blockSize = (int)(lenA)/(tagBuff-1)+1;
             
             for (int j = 0; j < Math.pow(2, i); j++) {
