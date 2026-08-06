@@ -3,6 +3,7 @@ package simplev.common;
 public class Sort {
     public String name;
     public volatile Highlight highlight;
+    public boolean isBogo = false;
 
     public Sort() {
         this.highlight = new Highlight(1);
