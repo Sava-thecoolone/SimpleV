@@ -12,19 +12,24 @@ import java.util.logging.Level;
 import javax.swing.JFrame;
 
 import net.openhft.compiler.CompilerUtils;
+import simplev.common.Case;
 import simplev.common.Highlight;
 import simplev.common.Run;
+import simplev.common.RunPrint;
 import simplev.common.Shuffle;
 import simplev.common.SimpleLogger;
 import simplev.common.Sort;
 
 public class SortVisuailzer {
     private static final SimpleLogger LOGGER = new SimpleLogger(SortVisuailzer.class.getName());
-    ArrayList<Run> cases = new ArrayList<>();
+    ArrayList<Case> cases = new ArrayList<>();
     volatile Highlight linkedHigh = new Highlight(1);
-    Renderer rend = new Renderer(new int[1024], 1024, linkedHigh);
+    public int[] stabilityTable = new int[1024];
+    Renderer rend = new Renderer(new int[1024], 1024, linkedHigh, stabilityTable);
     Sounds sound = new Sounds(rend.array, rend.len, linkedHigh);
     boolean benchmark = false;
+    boolean zen = false;
+    int len = 0;
   
     private Sort loadSort(String name) {
         try {
@@ -46,13 +51,17 @@ public class SortVisuailzer {
         }
     }
     
-    public final void loadCases(String path) {
+    public final void loadCases(String path, String[] replace) {
         try {
             LOGGER.log(Level.FINE, "Loading cases...");
-            String[] strs = Files.readString(Path.of(path)).split("\n");
+            String suite = Files.readString(Path.of(path));
+            for (int i = 0; i < replace.length; i++) {
+                suite = suite.replace("$"+i, replace[i]);
+            }
+            String[] strs = suite.split("\n");
             try {
                 for (String str : strs) {
-                    String[] p = str.split("-");
+                    String[] p = str.split("(?<!\\\\)-");
                     if (p.length == 0) continue;
                     switch (p[0].trim()) {
                         case "delay":
@@ -62,12 +71,25 @@ public class SortVisuailzer {
                             benchmark = true;
                             linkedHigh.delayMult = 0;
                             break;
+                        case "zen":
+                            zen = true;
+                            linkedHigh.delayMult = 0;
+                            break;
+                        case "print":
+                            cases.add(new RunPrint(p[1].trim().replace("\\", "")));
+                            break;
                         default:
                             if (p[0].trim().length() == 0) break;
                             Sort sort = loadSort(p[0].trim());
-                            String[] s = p[1].split(",");
-                            Shuffle shuffle = loadShuffle(s[1].trim());
-                            cases.add(new Run(rend.array, Integer.parseInt(s[0].trim()), sort, shuffle));
+                            String[] s = p[1].split("(?<!\\\\),");
+                            Shuffle[] shuffles = new Shuffle[s.length-1];
+                            for (int i = 0; i < s.length-1; i++) {
+                                shuffles[i] = loadShuffle(s[i+1].trim());
+                            }
+                            int curLen = Integer.parseInt(s[0].trim());
+                            if (len == 0) len = curLen;
+                            Run added = new Run(rend.array, curLen, sort, shuffles, p.length > 2 && p[2].trim().equals("Stability Check"), stabilityTable);
+                            cases.add(added);
                             break;
                     }
                 }
@@ -82,23 +104,29 @@ public class SortVisuailzer {
         }
     }
 
-    public SortVisuailzer(String suitePath) {
-        this.loadCases(suitePath);
+    public SortVisuailzer(String suitePath, String[] replace) {
+        this.loadCases(suitePath, replace);
     }
 
     private Thread makeMultiSortThread() {
         return new Thread(() -> {
             LOGGER.log(Level.FINE, "Suite started");
-            for (Run c : cases) {
-                rend.array = new int[c.len];
-                for (int i = 0; i < c.len; i++) {
-                    rend.array[i] = i;
+            for (Case c : cases) {
+                if (c == null) continue;
+                if (c instanceof Run r) {
+                    rend.array = new int[r.len];
+                    stabilityTable = new int[r.len];
+                    for (int i = 0; i < r.len; i++) {
+                        rend.array[i] = i;
+                    }
+                    r.array = rend.array;
+                    sound.array = rend.array;
+                    rend.len = r.len;
+                    sound.len = r.len;
+                    r.stabilityTable = stabilityTable;
+                    rend.stabilityTable = stabilityTable;
                 }
-                c.array = rend.array;
-                sound.array = rend.array;
-                rend.len = c.len;
-                sound.len = c.len;
-                Thread sortT = c.makeThread(benchmark);
+                Thread sortT = c.makeThread(benchmark, zen);
                 sortT.start();
                 try {
                     sortT.join();
@@ -120,18 +148,19 @@ public class SortVisuailzer {
     }
 
     public void setupRender() {
-        rend.array = new int[cases.get(0).len];
-        for (int i = 0; i < cases.get(0).len; i++) {
+        rend.array = new int[len];
+        stabilityTable = new int[len];
+        for (int i = 0; i < len; i++) {
             rend.array[i] = i;
         }
-        cases.get(0).array = rend.array;
         sound.array = rend.array;
-        rend.len = cases.get(0).len;
-        sound.len = cases.get(0).len;
+        rend.len = len;
+        sound.len = len;
+        rend.stabilityTable = stabilityTable;
         JFrame frame = new JFrame("SimpleV");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(rend);
-        frame.setSize(1280, 720);
+        frame.setSize(1024, 1024*3/4);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setVisible(true);
         frame.addMouseListener(new MouseAdapter() {

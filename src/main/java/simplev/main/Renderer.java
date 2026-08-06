@@ -23,6 +23,7 @@ import simplev.common.SimpleLogger;
 public class Renderer extends JPanel {
     private static final SimpleLogger LOGGER = new SimpleLogger(Renderer.class.getName());
     public int[] array;
+    public int[] stabilityTable = {};
     public int len;
     public volatile Highlight highlight;
     private final Font font;
@@ -55,10 +56,11 @@ public class Renderer extends JPanel {
         g2d.setStroke(new BasicStroke(0.0f));
         int last = 0;
         float scale = getWidth()/((float)len);
-        int pixSize = (int)Math.ceil(len/getWidth());
         for (int i = 0; i < len; i++) { 
-            if (Math.abs(highlight.highlight.get()-i) <= pixSize*2) {
+            if (Math.abs(highlight.highlight.get()-i)*scale <= 3) {
                 g2d.setColor(Color.RED);
+            } else if (highlight.stabilityCheck) {
+                g2d.setColor(Color.getHSBColor(stabilityTable[i]/(float)len/2, 1, 1));
             } else {
                 g2d.setColor(Color.WHITE);
             }
@@ -77,11 +79,12 @@ public class Renderer extends JPanel {
         outlineText(g2d, "Writes: "+Long.toString(highlight.writes.get()), font, 10, 30+lineHeight*4);
     }
 
-    public Renderer(int[] array, int len, Highlight highlight) {
+    public Renderer(int[] array, int len, Highlight highlight, int[] stabilityTable) {
         this.array = array;
         this.len = len;
         this.highlight = highlight;
         this.font = getFont(30);
+        this.stabilityTable = stabilityTable;
         setBackground(Color.BLACK);
         Timer timer = new Timer(4, e -> {
             repaint();
