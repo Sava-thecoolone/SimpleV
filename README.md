@@ -7,6 +7,8 @@ It was made in a week and it doesn't have GUI, but it's powerful enough to creat
 To compile the source code run `compile` or `compile.bat`
 
 ## Run
+**You must have java installed! (16 or newer)**
+
 To run you need to use `run` or `run.bat` and pass a suite as an argument, for example: `run suite.txt`
 
 look at suite1-3.txt for examples
