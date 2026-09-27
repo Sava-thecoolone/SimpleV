@@ -15,3 +15,9 @@ look at suite1-3.txt for examples
 
 ### Important notice
 The algorithms are compiled at runtime, so you don't need to recompile the entire project every time you change something in an algorithm
+
+
+## How to add a sort/shuffle
+You should go to src/main/java/simplev from the root of this directory and find the sorts or shuffles folder
+Add a .java file with the name corresponding to the internal name of the algorithm you want to use
+(look at some other sorts for examples on the expected format of the algorithms)
